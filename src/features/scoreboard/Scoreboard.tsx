@@ -5,7 +5,8 @@ import GameCard from "../../components/GameCard";
 import GameCardSkeleton from "../../components/GameCardSkeleton/GameCardSkeleton";
 import DateNav from "../../components/DateNav/DateNav";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
-import { todayESPN } from "../../lib/dates";
+import { useSwipe } from "../../hooks/useSwipe";
+import { addDays, fromESPNDate, todayESPN, toESPNDate } from "../../lib/dates";
 import styles from "./Scoreboard.module.css";
 
 // How often to re-fetch while games are in progress (ms)
@@ -33,6 +34,12 @@ export default function Scoreboard() {
     setSearchParams(newDate === todayESPN() ? {} : { date: newDate });
   }
 
+  const parsed = fromESPNDate(date);
+  const swipeRef = useSwipe<HTMLDivElement>({
+    onSwipeLeft: () => handleDateChange(toESPNDate(addDays(parsed, 1))),
+    onSwipeRight: () => handleDateChange(toESPNDate(addDays(parsed, -1))),
+  });
+
   const events = data?.events ?? [];
   const isEmpty = !isPending && !isError && isOnline && events.length === 0;
   // Hard error: fetch failed and there's nothing cached to show
@@ -43,7 +50,7 @@ export default function Scoreboard() {
   const showOfflineEmpty = !isOnline && events.length === 0;
 
   return (
-    <div className={styles.page}>
+    <div ref={swipeRef} className={styles.page}>
       <header className={styles.header}>
         <span className={styles.wordmark}>Swish</span>
         {isFetching && !isPending && isOnline && (
