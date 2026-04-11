@@ -33,6 +33,10 @@ export default function Scoreboard() {
 
   const events = data?.events ?? [];
   const isEmpty = !isPending && !isError && events.length === 0;
+  // Show error only when there's no cached data to fall back on
+  const showError = isError && events.length === 0;
+  // Show offline banner when a refetch failed but we have stale data to show
+  const showOfflineBanner = isError && events.length > 0;
 
   return (
     <div className={styles.page}>
@@ -43,13 +47,19 @@ export default function Scoreboard() {
         )}
       </header>
 
+      {showOfflineBanner && (
+        <div className={styles.offlineBanner}>
+          Offline — showing cached scores
+        </div>
+      )}
+
       <DateNav date={date} onChange={handleDateChange} />
 
       <main className={styles.list}>
         {isPending &&
           Array.from({ length: 6 }, (_, i) => <GameCardSkeleton key={i} />)}
 
-        {isError && (
+        {showError && (
           <p className={styles.message}>
             Could not load scores. Check your connection.
           </p>

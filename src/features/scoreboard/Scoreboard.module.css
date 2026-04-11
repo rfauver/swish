@@ -36,6 +36,17 @@
   }
 }
 
+/* ---- Offline banner ---- */
+
+.offlineBanner {
+  background: var(--color-surface-elevated);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  text-align: center;
+  padding: var(--space-xs) var(--space-md);
+  letter-spacing: 0.2px;
+}
+
 /* ---- Game list ---- */
 
 .list {
