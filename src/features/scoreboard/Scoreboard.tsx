@@ -4,6 +4,7 @@ import { fetchScoreboard } from "../../api/scores";
 import GameCard from "../../components/GameCard";
 import GameCardSkeleton from "../../components/GameCardSkeleton/GameCardSkeleton";
 import DateNav from "../../components/DateNav/DateNav";
+import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import { todayESPN } from "../../lib/dates";
 import styles from "./Scoreboard.module.css";
 
@@ -13,6 +14,7 @@ const LIVE_REFETCH_INTERVAL = 30_000;
 export default function Scoreboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const date = searchParams.get("date") ?? todayESPN();
+  const isOnline = useOnlineStatus();
 
   const { data, isPending, isError, isFetching } = useQuery({
     queryKey: ["scoreboard", date],
@@ -32,17 +34,19 @@ export default function Scoreboard() {
   }
 
   const events = data?.events ?? [];
-  const isEmpty = !isPending && !isError && events.length === 0;
-  // Show error only when there's no cached data to fall back on
+  const isEmpty = !isPending && !isError && isOnline && events.length === 0;
+  // Hard error: fetch failed and there's nothing cached to show
   const showError = isError && events.length === 0;
-  // Show offline banner when a refetch failed but we have stale data to show
-  const showOfflineBanner = isError && events.length > 0;
+  // Offline with cached data: navigator.onLine is false but SW served stale data
+  const showOfflineBanner = !isOnline && events.length > 0;
+  // Offline with no cache at all
+  const showOfflineEmpty = !isOnline && events.length === 0;
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <span className={styles.wordmark}>Swish</span>
-        {isFetching && !isPending && (
+        {isFetching && !isPending && isOnline && (
           <span className={styles.refreshing} aria-label="Refreshing" />
         )}
       </header>
@@ -57,11 +61,14 @@ export default function Scoreboard() {
 
       <main className={styles.list}>
         {isPending &&
+          isOnline &&
           Array.from({ length: 6 }, (_, i) => <GameCardSkeleton key={i} />)}
 
-        {showError && (
+        {(showError || showOfflineEmpty) && (
           <p className={styles.message}>
-            Could not load scores. Check your connection.
+            {!isOnline
+              ? "You're offline. Load the app online first to cache scores."
+              : "Could not load scores. Check your connection."}
           </p>
         )}
 
