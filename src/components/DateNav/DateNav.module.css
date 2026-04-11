@@ -1,0 +1,61 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.arrow {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 28px;
+  line-height: 1;
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    color 0.15s,
+    background 0.15s;
+  /* Comfortable tap target on mobile */
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow:hover {
+  color: var(--color-text);
+  background: var(--color-surface-elevated);
+}
+
+.arrow:active {
+  background: var(--color-border);
+}
+
+.label {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.label:hover:not(.labelToday) {
+  background: var(--color-surface-elevated);
+}
+
+/* When already on today, the label isn't interactive — no hover */
+.labelToday {
+  cursor: default;
+  color: var(--color-text-secondary);
+}
