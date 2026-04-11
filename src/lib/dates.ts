@@ -34,6 +34,15 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
+/** Convert a UTC ISO date string to a local time string, e.g. "7:30 PM". */
+export function formatGameTime(isoDate: string): string {
+  return new Date(isoDate).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 /** Human-readable label for a date: "Today", "Yesterday", or "Mon Apr 7". */
 export function formatDateLabel(date: Date): string {
   const today = new Date();

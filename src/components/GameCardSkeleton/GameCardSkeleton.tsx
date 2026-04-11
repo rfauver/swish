@@ -2,20 +2,18 @@ import styles from "./GameCardSkeleton.module.css";
 
 export default function GameCardSkeleton() {
   return (
-    <div className={styles.card} aria-hidden="true">
-      <div className={styles.row}>
-        <div className={styles.team}>
-          <div className={`${styles.shimmer} ${styles.logo}`} />
-          <div className={`${styles.shimmer} ${styles.abbr}`} />
-        </div>
-        <div className={styles.center}>
-          <div className={`${styles.shimmer} ${styles.score}`} />
-          <div className={`${styles.shimmer} ${styles.status}`} />
-        </div>
-        <div className={`${styles.team} ${styles.teamRight}`}>
-          <div className={`${styles.shimmer} ${styles.abbr}`} />
-          <div className={`${styles.shimmer} ${styles.logo}`} />
-        </div>
+    <div className={styles.row} aria-hidden="true">
+      <div className={styles.teamAway}>
+        <div className={`${styles.shimmer} ${styles.badge}`} />
+        <div className={`${styles.shimmer} ${styles.name}`} />
+        <div className={`${styles.shimmer} ${styles.logo}`} />
+      </div>
+      <div className={styles.center}>
+        <div className={`${styles.shimmer} ${styles.score}`} />
+      </div>
+      <div className={styles.teamHome}>
+        <div className={`${styles.shimmer} ${styles.logo}`} />
+        <div className={`${styles.shimmer} ${styles.name}`} />
       </div>
     </div>
   );

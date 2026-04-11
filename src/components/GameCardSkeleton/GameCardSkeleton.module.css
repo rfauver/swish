@@ -1,33 +1,30 @@
-.card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-}
-
 .row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.teamAway {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-sm);
 }
 
-.team {
+.teamHome {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--space-sm);
-  flex: 1;
-}
-
-.teamRight {
-  flex-direction: row-reverse;
 }
 
 .center {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-xs);
-  flex-shrink: 0;
+  justify-content: center;
+  min-width: 60px;
 }
 
 /* Shimmer base */
@@ -52,26 +49,27 @@
   }
 }
 
-/* Sized placeholders */
-.logo {
+.badge {
   width: 40px;
-  height: 40px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.logo {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.abbr {
-  width: 32px;
-  height: 14px;
+.name {
+  flex: 1;
+  min-width: 0;
+  max-width: 80px;
+  height: 13px;
 }
 
 .score {
-  width: 80px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-}
-
-.status {
   width: 60px;
-  height: 11px;
+  height: 18px;
 }

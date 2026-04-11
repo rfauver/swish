@@ -1,4 +1,5 @@
-import type { EspnCompetitor, EspnEvent, GameState } from "../../api/scores";
+import type { EspnCompetitor, EspnEvent } from "../../api/scores";
+import { formatGameTime } from "../../lib/dates";
 import styles from "./GameCard.module.css";
 
 interface GameCardProps {
@@ -12,22 +13,34 @@ function getCompetitor(
   return event.competitions[0].competitors.find((c) => c.homeAway === side)!;
 }
 
-function StatusLabel({
-  shortDetail,
-  state,
-}: {
-  shortDetail: string;
-  state: GameState;
-}) {
-  if (state === "in") {
+function getPeriodLabel(period: number): string {
+  if (period <= 4) return `Q${period}`;
+  if (period === 5) return "OT";
+  return `${period - 4}OT`;
+}
+
+function StatusBadge({ event }: { event: EspnEvent }) {
+  const { status } = event.competitions[0];
+  const { state } = status.type;
+
+  if (state === "post") {
     return (
-      <span className={styles.status}>
-        <span className={styles.liveDot} aria-hidden="true" />
-        {shortDetail}
-      </span>
+      <div className={`${styles.badge} ${styles.badgeFinal}`}>
+        {status.type.shortDetail}
+      </div>
     );
   }
-  return <span className={styles.status}>{shortDetail}</span>;
+
+  if (state === "in") {
+    return (
+      <div className={`${styles.badge} ${styles.badgeLive}`}>
+        {getPeriodLabel(status.period)} - {status.displayClock}
+      </div>
+    );
+  }
+
+  // pre-game: empty placeholder keeps column width consistent
+  return <div className={styles.badgeEmpty} />;
 }
 
 export default function GameCard({ event }: GameCardProps) {
@@ -42,57 +55,52 @@ export default function GameCard({ event }: GameCardProps) {
   const homeWon = state === "post" && Number(home.score) > Number(away.score);
 
   return (
-    <article className={styles.card}>
-      <div className={styles.teams}>
-        <Team competitor={away} leader={awayWon} side="away" />
-        <div className={styles.center}>
-          {showScores ? (
-            <div className={styles.scores}>
-              <span className={awayWon ? styles.scoreWin : styles.score}>
-                {away.score}
-              </span>
-              <span className={styles.scoreDivider}>–</span>
-              <span className={homeWon ? styles.scoreWin : styles.score}>
-                {home.score}
-              </span>
-            </div>
-          ) : (
-            <div className={styles.tipoff}>{status.type.shortDetail}</div>
-          )}
-          {showScores && (
-            <StatusLabel shortDetail={status.type.shortDetail} state={state} />
-          )}
-        </div>
-        <Team competitor={home} leader={homeWon} side="home" />
+    <article className={styles.row}>
+      {/* Away team: badge on far left, name, logo toward center */}
+      <div className={styles.teamAway}>
+        <StatusBadge event={event} />
+        <span className={`${styles.name} ${awayWon ? styles.nameWin : ""}`}>
+          {away.team.displayName}
+        </span>
+        <img
+          src={away.team.logo}
+          alt={away.team.displayName}
+          className={styles.logo}
+          width={28}
+          height={28}
+        />
+      </div>
+
+      {/* Center: scores or tip-off time */}
+      <div className={styles.center}>
+        {showScores ? (
+          <div className={styles.scores}>
+            <span className={awayWon ? styles.scoreWin : styles.score}>
+              {away.score}
+            </span>
+            <span className={styles.scoreDash}>–</span>
+            <span className={homeWon ? styles.scoreWin : styles.score}>
+              {home.score}
+            </span>
+          </div>
+        ) : (
+          <div className={styles.time}>{formatGameTime(event.date)}</div>
+        )}
+      </div>
+
+      {/* Home team: logo toward center, name on right */}
+      <div className={styles.teamHome}>
+        <img
+          src={home.team.logo}
+          alt={home.team.displayName}
+          className={styles.logo}
+          width={28}
+          height={28}
+        />
+        <span className={`${styles.name} ${homeWon ? styles.nameWin : ""}`}>
+          {home.team.displayName}
+        </span>
       </div>
     </article>
-  );
-}
-
-function Team({
-  competitor,
-  leader,
-  side,
-}: {
-  competitor: EspnCompetitor;
-  leader: boolean;
-  side: "home" | "away";
-}) {
-  const { team } = competitor;
-  return (
-    <div
-      className={`${styles.team} ${side === "home" ? styles.teamHome : styles.teamAway}`}
-    >
-      <img
-        src={team.logo}
-        alt={team.displayName}
-        className={styles.logo}
-        width={40}
-        height={40}
-      />
-      <span className={`${styles.abbr} ${leader ? styles.abbrWin : ""}`}>
-        {team.abbreviation}
-      </span>
-    </div>
   );
 }

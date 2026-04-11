@@ -4,16 +4,16 @@ Fast, mobile-first NBA scores PWA. The official NBA app is slow and cluttered �
 
 ## Tech stack
 
-| Concern | Choice |
-|---|---|
-| Build tool | Vite |
-| Language | TypeScript |
-| Styling | CSS Modules (all components use `.module.css`) |
-| Data fetching | TanStack Query v5 |
-| Client state | Zustand (not yet used; reserved for user preferences) |
-| Routing | React Router v6 |
-| PWA / service worker | vite-plugin-pwa (Workbox) |
-| Data source | ESPN public API (no key required, CORS-enabled) |
+| Concern              | Choice                                                |
+| -------------------- | ----------------------------------------------------- |
+| Build tool           | Vite                                                  |
+| Language             | TypeScript                                            |
+| Styling              | CSS Modules (all components use `.module.css`)        |
+| Data fetching        | TanStack Query v5                                     |
+| Client state         | Zustand (not yet used; reserved for user preferences) |
+| Routing              | React Router v6                                       |
+| PWA / service worker | vite-plugin-pwa (Workbox)                             |
+| Data source          | ESPN public API (no key required, CORS-enabled)       |
 
 ## API
 
@@ -26,12 +26,12 @@ All ESPN types are in `src/api/scores.ts`. The base fetch wrapper (`src/api/espn
 
 ## Caching strategy
 
-| Data | Workbox handler | TanStack staleTime |
-|---|---|---|
-| ESPN API responses | NetworkFirst, 10s timeout, 5min cache | 30s |
-| ESPN image CDN (`a.espncdn.com`) | CacheFirst | 30 days |
-| App shell (JS/CSS bundles) | Precached by service worker | — |
-| Query cache across sessions | Persisted to localStorage via `@tanstack/query-sync-storage-persister`, 24h max age | — |
+| Data                             | Workbox handler                                                                     | TanStack staleTime |
+| -------------------------------- | ----------------------------------------------------------------------------------- | ------------------ |
+| ESPN API responses               | NetworkFirst, 10s timeout, 5min cache                                               | 30s                |
+| ESPN image CDN (`a.espncdn.com`) | CacheFirst                                                                          | 30 days            |
+| App shell (JS/CSS bundles)       | Precached by service worker                                                         | —                  |
+| Query cache across sessions      | Persisted to localStorage via `@tanstack/query-sync-storage-persister`, 24h max age | —                  |
 
 Live scores auto-refetch every 30s via `refetchInterval` — only when at least one game has `status.type.state === "in"`.
 
