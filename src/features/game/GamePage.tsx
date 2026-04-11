@@ -83,7 +83,7 @@ export default function GamePage() {
             width={64}
             height={64}
           />
-          <span className={styles.matchupName}>{away.team.displayName}</span>
+          <span className={styles.matchupName}>{away.team.name}</span>
         </div>
 
         <div className={styles.matchupCenter}>
@@ -117,7 +117,7 @@ export default function GamePage() {
             width={64}
             height={64}
           />
-          <span className={styles.matchupName}>{home.team.displayName}</span>
+          <span className={styles.matchupName}>{home.team.name}</span>
         </div>
       </div>
 

@@ -58,7 +58,7 @@ export default function GameCard({ event, date }: GameCardProps) {
       <div className={styles.teamAway}>
         <StatusBadge event={event} />
         <span className={`${styles.name} ${awayWon ? styles.nameWin : ""}`}>
-          {away.team.displayName}
+          {away.team.name}
         </span>
         <img
           src={away.team.logo}
@@ -96,7 +96,7 @@ export default function GameCard({ event, date }: GameCardProps) {
           height={28}
         />
         <span className={`${styles.name} ${homeWon ? styles.nameWin : ""}`}>
-          {home.team.displayName}
+          {home.team.name}
         </span>
       </div>
     </article>
