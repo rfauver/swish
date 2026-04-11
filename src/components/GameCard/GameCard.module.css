@@ -42,6 +42,7 @@
   line-height: 1.3;
   text-align: center;
   text-wrap: nowrap;
+  font-variant: all-small-caps;
 }
 
 .badgeFinal {

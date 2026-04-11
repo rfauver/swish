@@ -9,6 +9,7 @@ import {
   todayESPN,
 } from "../../lib/dates";
 import { getPeriodLabel } from "../../lib/game";
+import ScoringTimeline from "./ScoringTimeline";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -90,13 +91,17 @@ export default function GamePage() {
           {showScores && (
             <div className={styles.matchupScores}>
               <span
-                className={awayWon ? styles.matchupScoreWin : styles.matchupScore}
+                className={
+                  awayWon ? styles.matchupScoreWin : styles.matchupScore
+                }
               >
                 {away.score}
               </span>
               <span className={styles.matchupDash}>–</span>
               <span
-                className={homeWon ? styles.matchupScoreWin : styles.matchupScore}
+                className={
+                  homeWon ? styles.matchupScoreWin : styles.matchupScore
+                }
               >
                 {home.score}
               </span>
@@ -169,6 +174,16 @@ export default function GamePage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Scoring timeline chart */}
+      {showScores && eventId && (
+        <ScoringTimeline
+          eventId={eventId}
+          awayTeam={away.team}
+          homeTeam={home.team}
+          isLive={state === "in"}
+        />
       )}
     </div>
   );
