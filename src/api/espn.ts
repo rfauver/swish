@@ -1,12 +1,13 @@
-const BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
+const BASE_URL =
+  "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
 
 export class EspnApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-  ) {
+  status: number;
+
+  constructor(status: number, message: string) {
     super(message);
     this.name = "EspnApiError";
+    this.status = status;
   }
 }
 
