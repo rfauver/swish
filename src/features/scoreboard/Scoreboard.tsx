@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { fetchScoreboard } from "../../api/scores";
@@ -7,6 +8,7 @@ import DateNav from "../../components/DateNav/DateNav";
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import { useSwipe } from "../../hooks/useSwipe";
 import { addDays, fromESPNDate, todayESPN, toESPNDate } from "../../lib/dates";
+import { queryClient } from "../../lib/queryClient";
 import styles from "./Scoreboard.module.css";
 
 // How often to re-fetch while games are in progress (ms)
@@ -35,6 +37,18 @@ export default function Scoreboard() {
   }
 
   const parsed = fromESPNDate(date);
+
+  // Prefetch adjacent days so swiping/tapping feels instant
+  useEffect(() => {
+    for (const offset of [-1, 1]) {
+      const adjacent = toESPNDate(addDays(parsed, offset));
+      queryClient.prefetchQuery({
+        queryKey: ["scoreboard", adjacent],
+        queryFn: () => fetchScoreboard(adjacent),
+      });
+    }
+  }, [date]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const swipeRef = useSwipe<HTMLDivElement>({
     onSwipeLeft: () => handleDateChange(toESPNDate(addDays(parsed, 1))),
     onSwipeRight: () => handleDateChange(toESPNDate(addDays(parsed, -1))),
