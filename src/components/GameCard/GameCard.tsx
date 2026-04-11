@@ -1,9 +1,12 @@
+import { Link } from "react-router-dom";
 import type { EspnCompetitor, EspnEvent } from "../../api/scores";
 import { formatGameTime } from "../../lib/dates";
+import { getPeriodLabel } from "../../lib/game";
 import styles from "./GameCard.module.css";
 
 interface GameCardProps {
   event: EspnEvent;
+  date: string;
 }
 
 function getCompetitor(
@@ -11,12 +14,6 @@ function getCompetitor(
   side: "home" | "away",
 ): EspnCompetitor {
   return event.competitions[0].competitors.find((c) => c.homeAway === side)!;
-}
-
-function getPeriodLabel(period: number): string {
-  if (period <= 4) return `Q${period}`;
-  if (period === 5) return "OT";
-  return `${period - 4}OT`;
 }
 
 function StatusBadge({ event }: { event: EspnEvent }) {
@@ -43,7 +40,7 @@ function StatusBadge({ event }: { event: EspnEvent }) {
   return <div className={styles.badgeEmpty} />;
 }
 
-export default function GameCard({ event }: GameCardProps) {
+export default function GameCard({ event, date }: GameCardProps) {
   const competition = event.competitions[0];
   const { status } = competition;
   const state = status.type.state;
@@ -55,6 +52,7 @@ export default function GameCard({ event }: GameCardProps) {
   const homeWon = state === "post" && Number(home.score) > Number(away.score);
 
   return (
+    <Link to={`/game/${event.id}?date=${date}`} className={styles.link}>
     <article className={styles.row}>
       {/* Away team: badge on far left, name, logo toward center */}
       <div className={styles.teamAway}>
@@ -102,5 +100,6 @@ export default function GameCard({ event }: GameCardProps) {
         </span>
       </div>
     </article>
+    </Link>
   );
 }

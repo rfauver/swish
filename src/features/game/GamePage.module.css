@@ -1,0 +1,182 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+/* ---- Header ---- */
+
+.header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 28px;
+  line-height: 1;
+  padding: 4px 12px 4px 0;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.message {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  text-align: center;
+  padding: var(--space-xl) 0;
+  margin: 0;
+}
+
+/* ---- Matchup header ---- */
+
+.matchup {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-md) var(--space-lg);
+  gap: var(--space-sm);
+}
+
+.matchupTeam {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.matchupLogo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.matchupName {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.matchupCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 0 var(--space-sm);
+}
+
+.matchupScores {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.matchupScore {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-secondary);
+}
+
+.matchupScoreWin {
+  composes: matchupScore;
+  color: var(--color-text);
+}
+
+.matchupDash {
+  font-size: 22px;
+  color: var(--color-border);
+  font-weight: 400;
+}
+
+.matchupStatus {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ---- Linescore table ---- */
+
+.tableWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-md) var(--space-md);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  max-width: 600px;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.table thead th {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  padding: 0 6px 8px;
+  text-align: right;
+}
+
+.table tbody td {
+  padding: 8px 6px;
+  text-align: right;
+}
+
+.table tbody tr + tr {
+  border-top: 1px solid var(--color-border);
+}
+
+.teamCell {
+  text-align: left !important;
+  padding-left: 0 !important;
+}
+
+.teamCellInner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.tableTeamLogo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.periodCell {
+  min-width: 32px;
+}
+
+.totalCell {
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  border-left: 1px solid var(--color-border);
+  padding-left: 12px !important;
+  min-width: 36px;
+}
+
+.totalWin {
+  color: var(--color-text);
+}

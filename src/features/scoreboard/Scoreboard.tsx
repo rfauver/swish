@@ -82,7 +82,7 @@ export default function Scoreboard() {
         {isEmpty && <p className={styles.message}>No games scheduled.</p>}
 
         {events.map((event) => (
-          <GameCard key={event.id} event={event} />
+          <GameCard key={event.id} event={event} date={date} />
         ))}
       </main>
     </div>
