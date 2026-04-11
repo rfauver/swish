@@ -8,7 +8,7 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <PersistQueryClientProvider
         client={queryClient}
         persistOptions={{ persister, maxAge: 24 * 60 * 60 * 1000 }}
