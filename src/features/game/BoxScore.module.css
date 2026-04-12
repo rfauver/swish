@@ -1,0 +1,72 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+.teamBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.teamHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.teamLogo {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.table thead th {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  padding: 0 6px 8px;
+  text-align: right;
+  color: var(--color-text-secondary);
+}
+
+.table tbody td {
+  padding: 8px 6px;
+  text-align: right;
+}
+
+.table tbody tr + tr {
+  border-top: 1px solid var(--color-border);
+}
+
+.playerCell {
+  text-align: left !important;
+  padding-left: 0 !important;
+  white-space: nowrap;
+}
+
+.playerName {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.starter {
+  color: var(--color-text-secondary);
+  margin-left: 4px;
+}

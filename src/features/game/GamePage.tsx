@@ -10,6 +10,7 @@ import {
 } from "../../lib/dates";
 import { getPeriodLabel } from "../../lib/game";
 import ScoringTimeline from "./ScoringTimeline";
+import BoxScore from "./BoxScore";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -184,6 +185,11 @@ export default function GamePage() {
           homeTeam={home.team}
           isLive={state === "in"}
         />
+      )}
+
+      {/* Box score */}
+      {showScores && eventId && (
+        <BoxScore eventId={eventId} isLive={state === "in"} />
       )}
     </div>
   );
