@@ -73,124 +73,131 @@ export default function GamePage() {
         <button className={styles.back} onClick={() => navigate(-1)}>
           ‹
         </button>
+        {/* Matchup */}
+        <div className={styles.matchup}>
+          <div className={styles.matchupTeam}>
+            <img
+              src={away.team.logo}
+              alt={away.team.displayName}
+              className={styles.matchupLogo}
+              width={64}
+              height={64}
+            />
+            <span className={styles.matchupName}>{away.team.name}</span>
+          </div>
+
+          <div className={styles.matchupCenter}>
+            {showScores && (
+              <div className={styles.matchupScores}>
+                <span
+                  className={
+                    awayWon ? styles.matchupScoreWin : styles.matchupScore
+                  }
+                >
+                  {away.score}
+                </span>
+                <span className={styles.matchupDash}>–</span>
+                <span
+                  className={
+                    homeWon ? styles.matchupScoreWin : styles.matchupScore
+                  }
+                >
+                  {home.score}
+                </span>
+              </div>
+            )}
+            <span className={styles.matchupStatus}>
+              {showScores
+                ? status.type.shortDetail
+                : `${formatDateLabel(fromESPNDate(date))} · ${formatGameTime(event.date)}`}
+            </span>
+          </div>
+
+          <div className={styles.matchupTeam}>
+            <img
+              src={home.team.logo}
+              alt={home.team.displayName}
+              className={styles.matchupLogo}
+              width={64}
+              height={64}
+            />
+            <span className={styles.matchupName}>{home.team.name}</span>
+          </div>
+        </div>
       </header>
 
-      {/* Matchup */}
-      <div className={styles.matchup}>
-        <div className={styles.matchupTeam}>
-          <img
-            src={away.team.logo}
-            alt={away.team.displayName}
-            className={styles.matchupLogo}
-            width={64}
-            height={64}
-          />
-          <span className={styles.matchupName}>{away.team.name}</span>
-        </div>
-
-        <div className={styles.matchupCenter}>
-          {showScores && (
-            <div className={styles.matchupScores}>
-              <span
-                className={
-                  awayWon ? styles.matchupScoreWin : styles.matchupScore
-                }
-              >
-                {away.score}
-              </span>
-              <span className={styles.matchupDash}>–</span>
-              <span
-                className={
-                  homeWon ? styles.matchupScoreWin : styles.matchupScore
-                }
-              >
-                {home.score}
-              </span>
-            </div>
-          )}
-          <span className={styles.matchupStatus}>
-            {showScores
-              ? status.type.shortDetail
-              : `${formatDateLabel(fromESPNDate(date))} · ${formatGameTime(event.date)}`}
-          </span>
-        </div>
-
-        <div className={styles.matchupTeam}>
-          <img
-            src={home.team.logo}
-            alt={home.team.displayName}
-            className={styles.matchupLogo}
-            width={64}
-            height={64}
-          />
-          <span className={styles.matchupName}>{home.team.name}</span>
-        </div>
-      </div>
-
-      {/* Linescore table */}
-      {showScores && (
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.teamCell} />
-                {periods.map((p) => (
-                  <th key={p} className={styles.periodCell}>
-                    {getPeriodLabel(p)}
-                  </th>
-                ))}
-                <th className={styles.totalCell}>T</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[away, home].map((competitor) => {
-                const won = competitor === away ? awayWon : homeWon;
-                return (
-                  <tr key={competitor.id}>
-                    <td className={styles.teamCell}>
-                      <div className={styles.teamCellInner}>
-                        <img
-                          src={competitor.team.logo}
-                          alt={competitor.team.abbreviation}
-                          className={styles.tableTeamLogo}
-                          width={20}
-                          height={20}
-                        />
-                        <span>{competitor.team.abbreviation}</span>
-                      </div>
-                    </td>
+      <div className={styles.cardsContainer}>
+        {/* Linescore table */}
+        {showScores && (
+          <div className={styles.gamePageCard}>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th className={styles.teamCell} />
                     {periods.map((p) => (
-                      <td key={p} className={styles.periodCell}>
-                        {getPeriodScore(competitor, p)}
-                      </td>
+                      <th key={p} className={styles.periodCell}>
+                        {getPeriodLabel(p)}
+                      </th>
                     ))}
-                    <td
-                      className={`${styles.totalCell} ${won ? styles.totalWin : ""}`}
-                    >
-                      {competitor.score}
-                    </td>
+                    <th className={styles.totalCell}>T</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody>
+                  {[away, home].map((competitor) => {
+                    const won = competitor === away ? awayWon : homeWon;
+                    return (
+                      <tr key={competitor.id}>
+                        <td className={styles.teamCell}>
+                          <div className={styles.teamCellInner}>
+                            <img
+                              src={competitor.team.logo}
+                              alt={competitor.team.abbreviation}
+                              className={styles.tableTeamLogo}
+                              width={20}
+                              height={20}
+                            />
+                            <span>{competitor.team.abbreviation}</span>
+                          </div>
+                        </td>
+                        {periods.map((p) => (
+                          <td key={p} className={styles.periodCell}>
+                            {getPeriodScore(competitor, p)}
+                          </td>
+                        ))}
+                        <td
+                          className={`${styles.totalCell} ${won ? styles.totalWin : ""}`}
+                        >
+                          {competitor.score}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-      {/* Scoring timeline chart */}
-      {showScores && eventId && (
-        <ScoringTimeline
-          eventId={eventId}
-          awayTeam={away.team}
-          homeTeam={home.team}
-          isLive={state === "in"}
-        />
-      )}
+        {/* Scoring timeline chart */}
+        {showScores && eventId && (
+          <div className={styles.gamePageCard}>
+            <ScoringTimeline
+              eventId={eventId}
+              awayTeam={away.team}
+              homeTeam={home.team}
+              isLive={state === "in"}
+            />
+          </div>
+        )}
 
-      {/* Box score */}
-      {showScores && eventId && (
-        <BoxScore eventId={eventId} isLive={state === "in"} />
-      )}
+        {/* Box score */}
+        {showScores && eventId && (
+          <div className={styles.gamePageCard}>
+            <BoxScore eventId={eventId} isLive={state === "in"} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
