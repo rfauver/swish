@@ -4,8 +4,10 @@ import {
   AreaChart,
   ReferenceLine,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
+  type TooltipContentProps,
 } from "recharts";
 import type { EspnTeam } from "../../api/scores";
 import type { SummaryPlay } from "../../api/summary";
@@ -36,26 +38,36 @@ function periodEndSeconds(period: number): number {
 }
 
 // Human-readable label for the quarter a given midpoint second falls in
-function secondsToLabel(s: number): string {
-  if (s < 720) return "Q1";
-  if (s < 1440) return "Q2";
-  if (s < 2160) return "Q3";
-  if (s < 2880) return "Q4";
-  const ot = Math.floor((s - 2880) / 300) + 1;
-  return ot === 1 ? "OT" : `${ot}OT`;
-}
+const secondsToLabel =
+  (totalSeconds: number) =>
+  (s: number): string => {
+    if (s < 720) return "Q1";
+    if (s < 1440) return "Q2";
+    if (s < 2160) return "Q3";
+    if (s < 2880) return "Q4";
+    if (s === totalSeconds) return "F";
+    const ot = Math.floor((s - 2880) / 300) + 1;
+    return ot === 1 ? "OT" : `${ot}OT`;
+  };
 
 interface ChartPoint {
   seconds: number;
   diff: number; // awayScore - homeScore (positive = away leading)
+  homeScore?: number;
+  awayScore?: number;
 }
 
-function buildChartData(plays: SummaryPlay[]): ChartPoint[] {
+function buildChartData(
+  plays: SummaryPlay[],
+  isLive: boolean,
+  totalSeconds: number,
+): ChartPoint[] {
   const points: ChartPoint[] = [{ seconds: 0, diff: 0 }];
 
   for (const play of plays) {
     const seconds = playToSeconds(play.period.number, play.clock.displayValue);
-    const diff = play.awayScore - play.homeScore;
+    const { homeScore, awayScore } = play;
+    const diff = awayScore - homeScore;
     const prev = points[points.length - 1];
     const prevDiff = prev.diff;
 
@@ -69,9 +81,18 @@ function buildChartData(plays: SummaryPlay[]): ChartPoint[] {
       });
     }
 
-    points.push({ seconds, diff });
+    points.push({ seconds, diff, homeScore, awayScore });
   }
 
+  if (!isLive) {
+    const lastPoint = points[points.length - 1];
+    points.push({
+      seconds: totalSeconds,
+      diff: 0,
+      homeScore: lastPoint.homeScore,
+      awayScore: lastPoint.awayScore,
+    });
+  }
   return points;
 }
 
@@ -94,17 +115,18 @@ export default function ScoringTimeline({
   const scoringPlays = (data?.plays ?? []).filter((p) => p.scoringPlay);
   if (scoringPlays.length === 0) return null;
 
-  const chartData = buildChartData(scoringPlays);
   const maxPeriod = Math.max(...scoringPlays.map((p) => p.period.number));
-  const totalSeconds = periodEndSeconds(maxPeriod);
+  const gameEndPeriod = Math.max(maxPeriod, 4);
+  const totalSeconds = periodEndSeconds(gameEndPeriod);
+  const chartData = buildChartData(scoringPlays, isLive, totalSeconds);
 
   // Vertical dividers between quarters
-  const boundaries = Array.from({ length: maxPeriod - 1 }, (_, i) =>
-    periodEndSeconds(i + 1),
+  const boundaries = Array.from({ length: gameEndPeriod + 1 }, (_, i) =>
+    periodEndSeconds(i),
   );
 
   // Quarter label ticks at the START of each period (left-anchored)
-  const startTicks = Array.from({ length: maxPeriod }, (_, i) =>
+  const startTicks = Array.from({ length: gameEndPeriod + 1 }, (_, i) =>
     periodEndSeconds(i),
   );
 
@@ -116,7 +138,6 @@ export default function ScoringTimeline({
   const zeroPercent = (maxDiff / (maxDiff - minDiff)) * 100;
   const gradId = `score-grad-${eventId}`;
 
-  console.log({ chartData });
   return (
     <div className={styles.wrapper}>
       <ResponsiveContainer width="100%" height={140}>
@@ -146,7 +167,7 @@ export default function ScoringTimeline({
             type="number"
             domain={[0, totalSeconds]}
             ticks={startTicks}
-            tickFormatter={secondsToLabel}
+            tickFormatter={secondsToLabel(totalSeconds)}
             axisLine={false}
             tickLine={false}
             tick={{
@@ -174,13 +195,39 @@ export default function ScoringTimeline({
             type="stepAfter"
             dataKey="diff"
             fill={`url(#${gradId})`}
-            stroke="none"
             baseValue={0}
             activeDot={false}
             isAnimationActive={false}
+            stroke="rgba(255,255,255,0.3)"
+            strokeWidth={0.5}
           />
+          <Tooltip content={tooltip(homeTeam, awayTeam)} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
+const tooltip =
+  (homeTeam: EspnTeam, awayTeam: EspnTeam) =>
+  ({ active, payload }: TooltipContentProps) => {
+    if (!active) {
+      return <></>;
+    }
+    return (
+      <div className={styles.tooltip}>
+        <div className={styles.tooltipRow}>
+          <img className={styles.tooltipLogo} src={awayTeam.logo} />{" "}
+          <div className={styles.tooltipScore}>
+            {payload[0].payload.awayScore}
+          </div>
+        </div>
+        <div className={styles.tooltipRow}>
+          <img className={styles.tooltipLogo} src={homeTeam.logo} />{" "}
+          <div className={styles.tooltipScore}>
+            {payload[0].payload.homeScore}
+          </div>
+        </div>
+      </div>
+    );
+  };
