@@ -1,4 +1,7 @@
 import { espnFetch } from "./espn";
+import type { EspnStatus, GameState } from "./scores";
+
+export type { GameState };
 
 export interface SummaryPlay {
   id: string;
@@ -49,11 +52,27 @@ export interface BoxscoreTeamPlayers {
   statistics: BoxscoreTeamStatistics[];
 }
 
+export interface HeaderCompetitor {
+  id: string;
+  homeAway: "home" | "away";
+  score: string;
+  winner?: boolean;
+  linescores?: Array<{ displayValue: string }>;
+}
+
+export interface SummaryHeader {
+  competitions: Array<{
+    status: EspnStatus;
+    competitors: HeaderCompetitor[];
+  }>;
+}
+
 export interface SummaryResponse {
   plays: SummaryPlay[];
   boxscore?: {
     players?: BoxscoreTeamPlayers[];
   };
+  header?: SummaryHeader;
 }
 
 export async function fetchGameSummary(

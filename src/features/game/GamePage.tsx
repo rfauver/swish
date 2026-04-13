@@ -2,6 +2,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { EspnCompetitor } from "../../api/scores";
 import { fetchScoreboard } from "../../api/scores";
+import { fetchGameSummary } from "../../api/summary";
 import {
   formatDateLabel,
   formatGameTime,
@@ -22,13 +23,23 @@ export default function GamePage() {
   const { data, isPending } = useQuery({
     queryKey: ["scoreboard", date],
     queryFn: () => fetchScoreboard(date),
-    refetchInterval: (query) => {
-      const ev = query.state.data?.events.find((e) => e.id === eventId);
-      return ev?.competitions[0]?.status.type.state === "in" ? 10_000 : false;
-    },
   });
 
   const event = data?.events.find((e) => e.id === eventId);
+
+  // Summary provides live-updating score/status/linescores. Polled here
+  // while the game is live; ScoringTimeline and BoxScore read from the
+  // same cache via their own useQuery calls with the same key.
+  const { data: summary } = useQuery({
+    queryKey: ["summary", eventId],
+    queryFn: () => fetchGameSummary(eventId!),
+    enabled: !!eventId,
+    refetchInterval: (query) => {
+      const state =
+        query.state.data?.header?.competitions[0]?.status.type.state;
+      return state === "in" ? 10_000 : false;
+    },
+  });
 
   if (!event) {
     return (
@@ -44,27 +55,48 @@ export default function GamePage() {
   }
 
   const competition = event.competitions[0];
-  const { status } = competition;
-  const state = status.type.state;
   const away = competition.competitors.find((c) => c.homeAway === "away")!;
   const home = competition.competitors.find((c) => c.homeAway === "home")!;
 
-  const awayScore = Number(away.score);
-  const homeScore = Number(home.score);
+  // Prefer summary (polled while live) for score/status/linescores;
+  // fall back to scoreboard for initial paint or if summary hasn't loaded.
+  const summaryComp = summary?.header?.competitions[0];
+  const summaryAway = summaryComp?.competitors.find(
+    (c) => c.homeAway === "away",
+  );
+  const summaryHome = summaryComp?.competitors.find(
+    (c) => c.homeAway === "home",
+  );
+
+  const status = summaryComp?.status ?? competition.status;
+  const state = status.type.state;
+
+  const awayScoreStr = summaryAway?.score ?? away.score;
+  const homeScoreStr = summaryHome?.score ?? home.score;
+  const awayScore = Number(awayScoreStr);
+  const homeScore = Number(homeScoreStr);
+
   const awayWon = state === "post" && awayScore > homeScore;
   const homeWon = state === "post" && homeScore > awayScore;
   const showScores = state === "in" || state === "post";
 
+  // Summary linescores are a simple array indexed by period-1; scoreboard
+  // linescores include the period number explicitly.
+  const awayLinescoreLen =
+    summaryAway?.linescores?.length ?? away.linescores.length;
+  const homeLinescoreLen =
+    summaryHome?.linescores?.length ?? home.linescores.length;
   const maxPeriod = showScores
-    ? Math.max(
-        4,
-        ...away.linescores.map((l) => l.period),
-        ...home.linescores.map((l) => l.period),
-      )
+    ? Math.max(4, awayLinescoreLen, homeLinescoreLen)
     : 0;
   const periods = Array.from({ length: maxPeriod }, (_, i) => i + 1);
 
   function getPeriodScore(competitor: EspnCompetitor, period: number): string {
+    const summaryScores =
+      competitor.homeAway === "away"
+        ? summaryAway?.linescores
+        : summaryHome?.linescores;
+    if (summaryScores) return summaryScores[period - 1]?.displayValue ?? "–";
     return (
       competitor.linescores.find((l) => l.period === period)?.displayValue ??
       "–"
@@ -98,7 +130,7 @@ export default function GamePage() {
                     awayWon ? styles.matchupScoreWin : styles.matchupScore
                   }
                 >
-                  {away.score}
+                  {awayScoreStr}
                 </span>
                 <span className={styles.matchupDash}>–</span>
                 <span
@@ -106,7 +138,7 @@ export default function GamePage() {
                     homeWon ? styles.matchupScoreWin : styles.matchupScore
                   }
                 >
-                  {home.score}
+                  {homeScoreStr}
                 </span>
               </div>
             )}
@@ -172,7 +204,9 @@ export default function GamePage() {
                         <td
                           className={`${styles.totalCell} ${won ? styles.totalWin : ""}`}
                         >
-                          {competitor.score}
+                          {competitor.homeAway === "away"
+                            ? awayScoreStr
+                            : homeScoreStr}
                         </td>
                       </tr>
                     );
