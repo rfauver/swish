@@ -22,6 +22,10 @@ export default function GamePage() {
   const { data, isPending } = useQuery({
     queryKey: ["scoreboard", date],
     queryFn: () => fetchScoreboard(date),
+    refetchInterval: (query) => {
+      const ev = query.state.data?.events.find((e) => e.id === eventId);
+      return ev?.competitions[0]?.status.type.state === "in" ? 10_000 : false;
+    },
   });
 
   const event = data?.events.find((e) => e.id === eventId);
