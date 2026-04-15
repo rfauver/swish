@@ -9,8 +9,10 @@ export interface SummaryPlay {
   scoringPlay: boolean;
   awayScore: number;
   homeScore: number;
+  text?: string;
   period: {
     number: number;
+    displayValue?: string; // "1st Quarter", "4th Quarter", "OT"
   };
   clock: {
     displayValue: string; // "12:00", "4:31"

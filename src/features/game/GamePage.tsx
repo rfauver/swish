@@ -91,6 +91,11 @@ export default function GamePage() {
     : 0;
   const periods = Array.from({ length: maxPeriod }, (_, i) => i + 1);
 
+  const latestPlay =
+    state === "in"
+      ? summary?.plays?.[summary.plays.length - 1]
+      : undefined;
+
   function getPeriodScore(competitor: EspnCompetitor, period: number): string {
     const summaryScores =
       competitor.homeAway === "away"
@@ -163,6 +168,22 @@ export default function GamePage() {
       </header>
 
       <div className={styles.cardsContainer}>
+        {/* Latest play (live only) */}
+        {latestPlay?.text && (
+          <div className={styles.gamePageCard}>
+            <div className={styles.latestPlay}>
+              <div className={styles.latestPlayMeta}>
+                <span className={styles.latestPlayLive}>Live</span>
+                <span>
+                  {getPeriodLabel(latestPlay.period.number)} ·{" "}
+                  {latestPlay.clock.displayValue}
+                </span>
+              </div>
+              <div className={styles.latestPlayText}>{latestPlay.text}</div>
+            </div>
+          </div>
+        )}
+
         {/* Linescore table */}
         {showScores && (
           <div className={styles.gamePageCard}>
