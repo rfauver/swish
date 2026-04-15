@@ -12,6 +12,7 @@ import {
 import { getPeriodLabel } from "../../lib/game";
 import ScoringTimeline from "./ScoringTimeline";
 import BoxScore from "./BoxScore";
+import Standings from "./Standings";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -254,6 +255,17 @@ export default function GamePage() {
         {showScores && eventId && (
           <div className={styles.gamePageCard}>
             <BoxScore eventId={eventId} isLive={state === "in"} />
+          </div>
+        )}
+
+        {/* Standings (regular season only) */}
+        {summary?.header?.season?.type !== 3 && (
+          <div className={styles.gamePageCard}>
+            <Standings
+              awayTeamId={away.team.id}
+              homeTeamId={home.team.id}
+              isSameConference={summary?.standings?.isSameConference}
+            />
           </div>
         )}
       </div>

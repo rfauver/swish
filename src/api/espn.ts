@@ -13,8 +13,9 @@ export class EspnApiError extends Error {
 export async function espnFetch<T>(
   path: string,
   params?: Record<string, string>,
+  options?: { base?: string },
 ): Promise<T> {
-  const url = new URL(`${BASE_URL}${path}`);
+  const url = new URL(`${options?.base ?? BASE_URL}${path}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) =>
       url.searchParams.set(key, value),

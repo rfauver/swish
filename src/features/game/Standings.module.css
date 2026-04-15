@@ -1,0 +1,98 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+.loading {
+  padding: var(--space-md);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+.confBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.confHeader {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.table thead th {
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  padding: 0 6px 8px;
+  text-align: right;
+  color: var(--color-text-secondary);
+}
+
+.table tbody td {
+  padding: 8px 6px;
+  text-align: right;
+}
+
+.table tbody tr + tr {
+  border-top: 1px solid var(--color-border);
+}
+
+.rankCell {
+  width: 24px;
+  text-align: right;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.teamCell {
+  text-align: left !important;
+  padding-left: 8px !important;
+}
+
+.teamCellInner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text);
+}
+
+.teamLogo {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.highlight {
+  background-color: var(--color-surface);
+}
+
+.highlight td {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.nextCell {
+  width: 32px;
+}
+
+.nextLogo {
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.nextDash {
+  color: var(--color-text-secondary);
+}

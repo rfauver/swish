@@ -67,6 +67,13 @@ export interface SummaryHeader {
     status: EspnStatus;
     competitors: HeaderCompetitor[];
   }>;
+  season?: {
+    type: number; // 1=pre, 2=regular, 3=post (playoffs)
+  };
+}
+
+export interface SummaryStandings {
+  isSameConference?: boolean;
 }
 
 export interface SummaryResponse {
@@ -75,6 +82,7 @@ export interface SummaryResponse {
     players?: BoxscoreTeamPlayers[];
   };
   header?: SummaryHeader;
+  standings?: SummaryStandings;
 }
 
 export async function fetchGameSummary(
