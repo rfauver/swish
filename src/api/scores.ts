@@ -72,6 +72,10 @@ export interface EspnEvent {
   name: string;
   shortName: string;
   competitions: [EspnCompetition];
+  season?: {
+    year: number;
+    type: number;
+  };
 }
 
 export interface ScoreboardResponse {

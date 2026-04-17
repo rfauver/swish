@@ -12,6 +12,7 @@ import {
 import { getPeriodLabel } from "../../lib/game";
 import ScoringTimeline from "./ScoringTimeline";
 import BoxScore from "./BoxScore";
+import RecentRecord from "./RecentRecord";
 import Standings from "./Standings";
 import styles from "./GamePage.module.css";
 
@@ -84,9 +85,9 @@ export default function GamePage() {
   // Summary linescores are a simple array indexed by period-1; scoreboard
   // linescores include the period number explicitly.
   const awayLinescoreLen =
-    summaryAway?.linescores?.length ?? away.linescores.length;
+    summaryAway?.linescores?.length ?? away.linescores?.length ?? 0;
   const homeLinescoreLen =
-    summaryHome?.linescores?.length ?? home.linescores.length;
+    summaryHome?.linescores?.length ?? home.linescores?.length ?? 0;
   const maxPeriod = showScores
     ? Math.max(4, awayLinescoreLen, homeLinescoreLen)
     : 0;
@@ -169,6 +170,17 @@ export default function GamePage() {
       </header>
 
       <div className={styles.cardsContainer}>
+        {/* Last 5 games (pre-game only) */}
+        {state === "pre" && event.season && (
+          <div className={styles.gamePageCard}>
+            <RecentRecord
+              awayTeam={away.team}
+              homeTeam={home.team}
+              seasonYear={event.season.year}
+            />
+          </div>
+        )}
+
         {/* Latest play (live only) */}
         {latestPlay?.text && (
           <div className={styles.gamePageCard}>
