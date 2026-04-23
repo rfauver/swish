@@ -60,6 +60,11 @@ export default function GamePage() {
   const away = competition.competitors.find((c) => c.homeAway === "away")!;
   const home = competition.competitors.find((c) => c.homeAway === "home")!;
 
+  const series = competition.series;
+  const seriesLabel = series?.competitors?.length
+    ? `(${series.competitors.find((c) => c.id === away.team.id)?.wins ?? 0}–${series.competitors.find((c) => c.id === home.team.id)?.wins ?? 0})`
+    : null;
+
   // Prefer summary (polled while live) for score/status/linescores;
   // fall back to scoreboard for initial paint or if summary hasn't loaded.
   const summaryComp = summary?.header?.competitions[0];
@@ -148,6 +153,9 @@ export default function GamePage() {
                   {homeScoreStr}
                 </span>
               </div>
+            )}
+            {seriesLabel && (
+              <span className={styles.matchupSeries}>{seriesLabel}</span>
             )}
             <span className={styles.matchupStatus}>
               {showScores

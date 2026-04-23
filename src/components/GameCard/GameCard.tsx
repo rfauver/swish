@@ -40,6 +40,18 @@ function StatusBadge({ event }: { event: EspnEvent }) {
   return <div className={styles.badgeEmpty} />;
 }
 
+function getSeriesLabel(event: EspnEvent): string | null {
+  const series = event.competitions[0].series;
+  if (!series?.competitors?.length) return null;
+  const away = getCompetitor(event, "away");
+  const home = getCompetitor(event, "home");
+  const awayWins =
+    series.competitors.find((c) => c.id === away.team.id)?.wins ?? 0;
+  const homeWins =
+    series.competitors.find((c) => c.id === home.team.id)?.wins ?? 0;
+  return `(${awayWins}–${homeWins})`;
+}
+
 export default function GameCard({ event, date }: GameCardProps) {
   const competition = event.competitions[0];
   const { status } = competition;
@@ -50,6 +62,7 @@ export default function GameCard({ event, date }: GameCardProps) {
   const showScores = state === "in" || state === "post";
   const awayWon = state === "post" && Number(away.score) > Number(home.score);
   const homeWon = state === "post" && Number(home.score) > Number(away.score);
+  const seriesLabel = getSeriesLabel(event);
 
   return (
     <Link to={`/game/${event.id}?date=${date}`} className={styles.link}>
@@ -83,6 +96,9 @@ export default function GameCard({ event, date }: GameCardProps) {
           </div>
         ) : (
           <div className={styles.time}>{formatGameTime(event.date)}</div>
+        )}
+        {seriesLabel && (
+          <div className={styles.series}>{seriesLabel}</div>
         )}
       </div>
 

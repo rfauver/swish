@@ -57,6 +57,17 @@ export interface EspnVenue {
   };
 }
 
+export interface EspnSeriesCompetitor {
+  id: string;
+  wins: number;
+}
+
+export interface EspnSeries {
+  type: string;
+  summary: string;
+  competitors: EspnSeriesCompetitor[];
+}
+
 export interface EspnCompetition {
   id: string;
   date: string;
@@ -64,6 +75,7 @@ export interface EspnCompetition {
   competitors: EspnCompetitor[];
   status: EspnStatus;
   broadcasts: EspnBroadcast[];
+  series?: EspnSeries;
 }
 
 export interface EspnEvent {

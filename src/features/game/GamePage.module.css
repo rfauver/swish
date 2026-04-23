@@ -111,6 +111,12 @@
   font-weight: 400;
 }
 
+.matchupSeries {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
 .matchupStatus {
   font-size: 12px;
   color: var(--color-text-secondary);

@@ -105,6 +105,7 @@
 /* ---- Center: scores or time ---- */
 
 .center {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -117,6 +118,18 @@
   align-items: baseline;
   gap: 6px;
   font-variant-numeric: tabular-nums;
+}
+
+.series {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .score {
