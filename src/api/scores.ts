@@ -68,6 +68,11 @@ export interface EspnSeries {
   competitors: EspnSeriesCompetitor[];
 }
 
+export interface EspnNote {
+  type: string;
+  headline: string;
+}
+
 export interface EspnCompetition {
   id: string;
   date: string;
@@ -76,6 +81,7 @@ export interface EspnCompetition {
   status: EspnStatus;
   broadcasts: EspnBroadcast[];
   series?: EspnSeries;
+  notes?: EspnNote[];
 }
 
 export interface EspnEvent {

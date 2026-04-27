@@ -1,0 +1,65 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--color-surface);
+  font-size: 13px;
+}
+
+.highlighted {
+  outline: 2px solid var(--color-text);
+  outline-offset: 1px;
+}
+
+.teamRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  color: var(--color-text-secondary);
+}
+
+.teamRow + .teamRow {
+  border-top: 1px solid var(--color-border);
+}
+
+.winner {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.logoPlaceholder {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tbd {
+  flex: 1;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.wins {
+  min-width: 14px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

@@ -13,6 +13,7 @@ import { getPeriodLabel } from "../../lib/game";
 import ScoringTimeline from "./ScoringTimeline";
 import BoxScore from "./BoxScore";
 import RecentRecord from "./RecentRecord";
+import PlayoffBracket from "./PlayoffBracket";
 import Standings from "./Standings";
 import styles from "./GamePage.module.css";
 
@@ -278,8 +279,16 @@ export default function GamePage() {
           </div>
         )}
 
-        {/* Standings (regular season only) */}
-        {summary?.header?.season?.type !== 3 && (
+        {/* Standings or Playoff Bracket */}
+        {summary?.header?.season?.type === 3 ? (
+          <div className={styles.gamePageCard}>
+            <PlayoffBracket
+              awayTeamId={away.team.id}
+              homeTeamId={home.team.id}
+              seasonYear={event.season?.year ?? new Date().getFullYear()}
+            />
+          </div>
+        ) : (
           <div className={styles.gamePageCard}>
             <Standings
               awayTeamId={away.team.id}
