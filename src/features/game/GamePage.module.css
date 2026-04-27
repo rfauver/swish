@@ -71,10 +71,8 @@
   font-weight: 700;
   color: var(--color-text-secondary);
   text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
+  width: min-content;
+  text-wrap: nowrap;
 }
 
 .matchupCenter {
