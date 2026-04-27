@@ -68,19 +68,6 @@ function buildChartData(
     const seconds = playToSeconds(play.period.number, play.clock.displayValue);
     const { homeScore, awayScore } = play;
     const diff = awayScore - homeScore;
-    const prev = points[points.length - 1];
-    const prevDiff = prev.diff;
-
-    // Insert an explicit zero-crossing vertex so the gradient color
-    // change happens exactly at the x-axis instead of mid-diagonal.
-    if ((prevDiff > 0 && diff < 0) || (prevDiff < 0 && diff > 0)) {
-      const t = prevDiff / (prevDiff - diff);
-      points.push({
-        seconds: prev.seconds + (seconds - prev.seconds) * t,
-        diff: 0,
-      });
-    }
-
     points.push({ seconds, diff, homeScore, awayScore });
   }
 
@@ -88,7 +75,7 @@ function buildChartData(
     const lastPoint = points[points.length - 1];
     points.push({
       seconds: totalSeconds,
-      diff: 0,
+      diff: lastPoint.diff,
       homeScore: lastPoint.homeScore,
       awayScore: lastPoint.awayScore,
     });
@@ -133,9 +120,18 @@ export default function ScoringTimeline({
   const awayColor = `#${awayTeam.color}`;
   const homeColor = `#${homeTeam.color}`;
 
-  const maxDiff = Math.max(...chartData.map((p) => p.diff), 1);
-  const minDiff = Math.min(...chartData.map((p) => p.diff), -1);
-  const zeroPercent = (maxDiff / (maxDiff - minDiff)) * 100;
+  const rawMax = Math.max(...chartData.map((p) => p.diff));
+  const rawMin = Math.min(...chartData.map((p) => p.diff));
+  const padding = Math.max(1, (rawMax - rawMin) * 0.05);
+  const maxDiff = Math.max(rawMax, padding);
+  const minDiff = Math.min(rawMin, -padding);
+
+  // Gradient is in objectBoundingBox coords — the area shape's BB spans
+  // from max(rawMax,0) to min(rawMin,0), not the full Y-axis domain.
+  const bbTop = Math.max(rawMax, 0);
+  const bbBottom = Math.min(rawMin, 0);
+  const bbRange = bbTop - bbBottom;
+  const zeroPercent = bbRange > 0 ? (bbTop / bbRange) * 100 : 50;
   const gradId = `score-grad-${eventId}`;
 
   return (
