@@ -5,7 +5,6 @@ import {
   buildBracket,
   findTeamRound,
   roundLabel,
-  type Bracket,
   type BracketSeries,
   type RoundId,
 } from "../../lib/playoffs";
@@ -75,7 +74,6 @@ export default function PlayoffBracket({
   // East occupies rows 1..baseRowsPerConf
   // Divider is a gap (handled by row gap)
   // West occupies rows baseRowsPerConf+1..baseRowsPerConf*2
-  const totalRows = baseRowsPerConf * 2;
   const confRounds = visibleRounds.filter((r) => r <= 3);
   const showFinals = visibleRounds.includes(4);
   const totalCols = confRounds.length + (showFinals ? 1 : 0);
@@ -85,7 +83,7 @@ export default function PlayoffBracket({
   }
 
   // Place series cells into the unified grid
-  const cells: JSX.Element[] = [];
+  const cells: React.ReactElement[] = [];
 
   for (let ci = 0; ci < confRounds.length; ci++) {
     const round = confRounds[ci];

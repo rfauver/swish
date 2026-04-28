@@ -65,6 +65,7 @@ export interface EspnSeriesCompetitor {
 export interface EspnSeries {
   type: string;
   summary: string;
+  completed?: boolean;
   competitors: EspnSeriesCompetitor[];
 }
 
