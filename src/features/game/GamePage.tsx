@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { EspnCompetitor } from "../../api/scores";
@@ -29,6 +30,7 @@ export default function GamePage() {
   });
 
   const event = data?.events.find((e) => e.id === eventId);
+  const [playsExpanded, setPlaysExpanded] = useState(false);
 
   // Summary provides live-updating score/status/linescores. Polled here
   // while the game is live; ScoringTimeline and BoxScore read from the
@@ -99,10 +101,13 @@ export default function GamePage() {
     : 0;
   const periods = Array.from({ length: maxPeriod }, (_, i) => i + 1);
 
-  const latestPlay =
-    state === "in"
-      ? summary?.plays?.[summary.plays.length - 1]
-      : undefined;
+  const recentPlays =
+    state === "in" && summary?.plays?.length
+      ? summary.plays
+          .filter((p) => p.text)
+          .slice(-10)
+          .reverse()
+      : [];
 
   function getPeriodScore(competitor: EspnCompetitor, period: number): string {
     const summaryScores =
@@ -190,18 +195,32 @@ export default function GamePage() {
           </div>
         )}
 
-        {/* Latest play (live only) */}
-        {latestPlay?.text && (
-          <div className={styles.gamePageCard}>
-            <div className={styles.latestPlay}>
-              <div className={styles.latestPlayMeta}>
-                <span className={styles.latestPlayLive}>Live</span>
-                <span>
-                  {getPeriodLabel(latestPlay.period.number)} ·{" "}
-                  {latestPlay.clock.displayValue}
-                </span>
-              </div>
-              <div className={styles.latestPlayText}>{latestPlay.text}</div>
+        {/* Recent plays (live only) */}
+        {recentPlays.length > 0 && (
+          <div
+            className={styles.gamePageCard}
+            onClick={() => setPlaysExpanded((v) => !v)}
+          >
+            <div className={styles.recentPlays}>
+              {(playsExpanded ? recentPlays : recentPlays.slice(0, 1)).map(
+                (play, i) => (
+                  <div
+                    key={play.id ?? i}
+                    className={styles.playItem}
+                  >
+                    <div className={styles.playMeta}>
+                      {i === 0 && (
+                        <span className={styles.playLive}>Live</span>
+                      )}
+                      <span>
+                        {getPeriodLabel(play.period.number)} ·{" "}
+                        {play.clock.displayValue}
+                      </span>
+                    </div>
+                    <div className={styles.playText}>{play.text}</div>
+                  </div>
+                ),
+              )}
             </div>
           </div>
         )}
