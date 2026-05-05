@@ -40,15 +40,21 @@ interface ParsedHeadline {
 }
 
 function parseHeadline(headline: string): ParsedHeadline | null {
-  if (headline.includes("NBA Finals") || headline.includes("Finals -")) {
+  if (/NBA Finals|^Finals\b/.test(headline)) {
     return { conference: "Finals", round: 4 };
   }
-  const match = headline.match(/^(East|West)\s+(1st Round|Conf Semis|Conf Finals)/);
+  const match = headline.match(
+    /^(East|West)\s+(1st Round|Semifinals|Conf Semis|Conf Finals|Finals)/,
+  );
   if (!match) return null;
   const conf = match[1] as Conference;
   const roundStr = match[2];
   const round =
-    roundStr === "1st Round" ? 1 : roundStr === "Conf Semis" ? 2 : 3;
+    roundStr === "1st Round"
+      ? 1
+      : roundStr === "Semifinals" || roundStr === "Conf Semis"
+        ? 2
+        : 3;
   return { conference: conf, round: round as RoundId };
 }
 
@@ -77,7 +83,10 @@ export function buildBracket(events: EspnEvent[]): Bracket {
     const teamIds = comp.competitors.map((c) => c.team.id);
     const key = seriesKey(teamIds);
 
-    latestBySeriesKey.set(key, { event, parsed });
+    const existing = latestBySeriesKey.get(key);
+    if (!existing || event.date > existing.event.date) {
+      latestBySeriesKey.set(key, { event, parsed });
+    }
   }
 
   // Build series from deduplicated events
@@ -118,29 +127,81 @@ export function buildBracket(events: EspnEvent[]): Bracket {
     });
   }
 
-  // Assign bracket positions within each round+conference group
-  // Sort by higher-seeded team ID as proxy for bracket order
-  const groups = new Map<string, BracketSeries[]>();
-  for (const s of seriesList) {
-    const key = `${s.round}-${s.conference}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(s);
+  // Assign bracket positions using feeder relationships.
+  // A later-round series tells us which earlier-round series are paired:
+  // R2[0] is fed by R1[0]+R1[1], R2[1] by R1[2]+R1[3], etc.
+  function teamIds(s: BracketSeries): Set<string> {
+    return new Set(s.teams.filter(Boolean).map((t) => t!.id));
   }
 
-  for (const group of groups.values()) {
-    group.sort((a, b) => {
-      const aMin = Math.min(
-        ...a.teams.filter(Boolean).map((t) => Number(t!.id)),
-      );
-      const bMin = Math.min(
-        ...b.teams.filter(Boolean).map((t) => Number(t!.id)),
-      );
-      return aMin - bMin;
-    });
-    group.forEach((s, i) => {
-      s.bracketPosition = i;
-    });
+  function getConfSeries(round: RoundId, conf: Conference | "Finals") {
+    return seriesList.filter((s) => s.round === round && s.conference === conf);
   }
+
+  for (const conf of ["East", "West"] as Conference[]) {
+    const r1 = getConfSeries(1, conf);
+    const r2 = getConfSeries(2, conf);
+    const r3 = getConfSeries(3, conf);
+
+    // Sort R2 by feeder from R3 (if available), else by min team ID
+    if (r3.length > 0 && r2.length === 2) {
+      const r3Ids = teamIds(r3[0]);
+      const r2a = r2.find((s) =>
+        s.teams.some((t) => t && r3Ids.has(t.id)),
+      );
+      if (r2a) {
+        r2a.bracketPosition = 0;
+        const r2b = r2.find((s) => s !== r2a)!;
+        r2b.bracketPosition = 1;
+      }
+    }
+    if (!r2.some((s) => s.bracketPosition > 0) && r2.length > 1) {
+      r2.sort((a, b) => {
+        const aMin = Math.min(...[...teamIds(a)].map(Number));
+        const bMin = Math.min(...[...teamIds(b)].map(Number));
+        return aMin - bMin;
+      });
+      r2.forEach((s, i) => (s.bracketPosition = i));
+    }
+
+    // Assign R1 positions from R2 feeders
+    let positioned = false;
+    if (r2.length >= 2) {
+      const sorted = [...r2].sort(
+        (a, b) => a.bracketPosition - b.bracketPosition,
+      );
+      for (let ri = 0; ri < sorted.length; ri++) {
+        const r2Ids = teamIds(sorted[ri]);
+        const feeders = r1.filter((s) =>
+          s.teams.some((t) => t && r2Ids.has(t.id)),
+        );
+        if (feeders.length === 2) {
+          positioned = true;
+          feeders.sort((a, b) => {
+            const aMin = Math.min(...[...teamIds(a)].map(Number));
+            const bMin = Math.min(...[...teamIds(b)].map(Number));
+            return aMin - bMin;
+          });
+          feeders[0].bracketPosition = ri * 2;
+          feeders[1].bracketPosition = ri * 2 + 1;
+        }
+      }
+    }
+    if (!positioned) {
+      r1.sort((a, b) => {
+        const aMin = Math.min(...[...teamIds(a)].map(Number));
+        const bMin = Math.min(...[...teamIds(b)].map(Number));
+        return aMin - bMin;
+      });
+      r1.forEach((s, i) => (s.bracketPosition = i));
+    }
+
+    if (r3.length > 0) r3[0].bracketPosition = 0;
+  }
+
+  // Finals
+  const finals = getConfSeries(4, "Finals");
+  if (finals.length > 0) finals[0].bracketPosition = 0;
 
   // Build rounds map, filling TBD placeholders for missing rounds
   const rounds = new Map<RoundId, BracketSeries[]>();

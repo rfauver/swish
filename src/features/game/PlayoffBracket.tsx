@@ -79,7 +79,8 @@ export default function PlayoffBracket({
   const totalCols = confRounds.length + (showFinals ? 1 : 0);
 
   function isHighlighted(s: BracketSeries) {
-    return s.teams.some((t) => t && highlightIds.has(t.id));
+    return s.round === defaultRound &&
+      s.teams.some((t) => t && highlightIds.has(t.id));
   }
 
   // Place series cells into the unified grid
