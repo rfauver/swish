@@ -2,6 +2,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { fetchStandings } from "../../api/standings";
 import type { StandingsConference, StandingsEntry } from "../../api/standings";
 import { fetchTeam } from "../../api/teams";
+import { useLeague } from "../../lib/league";
 import styles from "./Standings.module.css";
 
 interface Props {
@@ -28,9 +29,10 @@ export default function Standings({
   homeTeamId,
   isSameConference,
 }: Props) {
+  const league = useLeague();
   const { data, isPending } = useQuery({
-    queryKey: ["standings"],
-    queryFn: fetchStandings,
+    queryKey: ["standings", league],
+    queryFn: () => fetchStandings(league),
     staleTime: 60 * 60 * 1000,
   });
 
@@ -57,8 +59,8 @@ export default function Standings({
 
   const teamQueries = useQueries({
     queries: teamIds.map((id) => ({
-      queryKey: ["team", id],
-      queryFn: () => fetchTeam(id),
+      queryKey: ["team", league, id],
+      queryFn: () => fetchTeam(league, id),
       staleTime: 60 * 60 * 1000,
     })),
   });

@@ -1,6 +1,6 @@
 # Swish
 
-Fast NBA scores PWA. Built with React, TypeScript, Vite, and TanStack Query.
+Fast NBA/WNBA scores PWA. Built with React, TypeScript, Vite, and TanStack Query.
 
 ## Development
 

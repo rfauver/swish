@@ -40,7 +40,7 @@ interface ParsedHeadline {
 }
 
 function parseHeadline(headline: string): ParsedHeadline | null {
-  if (/NBA Finals|^Finals\b/.test(headline)) {
+  if (/W?NBA Finals|^Finals\b/.test(headline)) {
     return { conference: "Finals", round: 4 };
   }
   const match = headline.match(

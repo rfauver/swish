@@ -1,4 +1,5 @@
 import { espnFetch } from "./espn";
+import type { League } from "../lib/league";
 
 // --- Raw ESPN types ---
 
@@ -105,8 +106,9 @@ export interface ScoreboardResponse {
 
 /** Fetch scores for a given date (YYYYMMDD). Defaults to today. */
 export async function fetchScoreboard(
+  league: League,
   date?: string,
 ): Promise<ScoreboardResponse> {
   const params = date ? { dates: date } : undefined;
-  return espnFetch<ScoreboardResponse>("/scoreboard", params);
+  return espnFetch<ScoreboardResponse>("/scoreboard", params, { league });
 }

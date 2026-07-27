@@ -1,4 +1,5 @@
 import { espnFetch } from "./espn";
+import type { League } from "../lib/league";
 
 export interface ScheduleCompetitor {
   id: string;
@@ -31,12 +32,17 @@ export interface ScheduleResponse {
 }
 
 export async function fetchTeamSchedule(
+  league: League,
   teamId: string,
   season: number,
   seasonType: number,
 ): Promise<ScheduleResponse> {
-  return espnFetch<ScheduleResponse>(`/teams/${teamId}/schedule`, {
-    season: String(season),
-    seasontype: String(seasonType),
-  });
+  return espnFetch<ScheduleResponse>(
+    `/teams/${teamId}/schedule`,
+    {
+      season: String(season),
+      seasontype: String(seasonType),
+    },
+    { league },
+  );
 }

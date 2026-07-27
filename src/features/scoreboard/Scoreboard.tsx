@@ -9,6 +9,8 @@ import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import { useSwipe } from "../../hooks/useSwipe";
 import { addDays, fromESPNDate, todayESPN, toESPNDate } from "../../lib/dates";
 import { queryClient } from "../../lib/queryClient";
+import { useLeague, useToggleLeague } from "../../lib/league";
+import LeagueToggle from "../../components/LeagueToggle";
 import styles from "./Scoreboard.module.css";
 
 // How often to re-fetch while games are in progress (ms)
@@ -18,10 +20,12 @@ export default function Scoreboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const date = searchParams.get("date") ?? todayESPN();
   const isOnline = useOnlineStatus();
+  const league = useLeague();
+  const toggleLeague = useToggleLeague();
 
   const { data, isPending, isError, isFetching } = useQuery({
-    queryKey: ["scoreboard", date],
-    queryFn: () => fetchScoreboard(date),
+    queryKey: ["scoreboard", league, date],
+    queryFn: () => fetchScoreboard(league, date),
     // Poll every 30s only while any game is live
     refetchInterval: (query) => {
       const events = query.state.data?.events ?? [];
@@ -43,11 +47,11 @@ export default function Scoreboard() {
     for (const offset of [-1, 1]) {
       const adjacent = toESPNDate(addDays(parsed, offset));
       queryClient.prefetchQuery({
-        queryKey: ["scoreboard", adjacent],
-        queryFn: () => fetchScoreboard(adjacent),
+        queryKey: ["scoreboard", league, adjacent],
+        queryFn: () => fetchScoreboard(league, adjacent),
       });
     }
-  }, [date]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [date, league]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const swipeRef = useSwipe<HTMLDivElement>({
     onSwipeLeft: () => handleDateChange(toESPNDate(addDays(parsed, 1))),
@@ -99,6 +103,8 @@ export default function Scoreboard() {
           <GameCard key={event.id} event={event} date={date} />
         ))}
       </main>
+
+      <LeagueToggle league={league} onToggle={toggleLeague} />
     </div>
   );
 }

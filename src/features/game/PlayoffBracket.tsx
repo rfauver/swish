@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPlayoffScoreboard } from "../../api/playoffs";
+import { useLeague } from "../../lib/league";
 import {
   buildBracket,
   findTeamRound,
@@ -25,9 +26,10 @@ export default function PlayoffBracket({
   homeTeamId,
   seasonYear,
 }: Props) {
+  const league = useLeague();
   const { data: bracket, isPending } = useQuery({
-    queryKey: ["playoffBracket", seasonYear],
-    queryFn: () => fetchPlayoffScoreboard(seasonYear),
+    queryKey: ["playoffBracket", league, seasonYear],
+    queryFn: () => fetchPlayoffScoreboard(league, seasonYear),
     select: (data) => buildBracket(data.events),
     staleTime: 5 * 60 * 1000,
   });

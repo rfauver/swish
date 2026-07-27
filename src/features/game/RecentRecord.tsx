@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { fetchTeamSchedule } from "../../api/schedule";
 import type { EspnTeam } from "../../api/scores";
+import { useLeague } from "../../lib/league";
+import type { League } from "../../lib/league";
 import styles from "./RecentRecord.module.css";
 
 interface Props {
@@ -21,13 +23,14 @@ interface GameResult {
 const SEASON_TYPES = [2, 3, 5]; // regular, playoffs, play-in
 
 function useLast5(
+  league: League,
   teamId: string,
   seasonYear: number,
 ): GameResult[] | undefined {
   const queries = useQueries({
     queries: SEASON_TYPES.map((st) => ({
-      queryKey: ["schedule", teamId, seasonYear, st],
-      queryFn: () => fetchTeamSchedule(teamId, seasonYear, st),
+      queryKey: ["schedule", league, teamId, seasonYear, st],
+      queryFn: () => fetchTeamSchedule(league, teamId, seasonYear, st),
       staleTime: 60 * 60 * 1000,
     })),
   });
@@ -117,8 +120,9 @@ export default function RecentRecord({
   homeTeam,
   seasonYear,
 }: Props) {
-  const awayResults = useLast5(awayTeam.id, seasonYear);
-  const homeResults = useLast5(homeTeam.id, seasonYear);
+  const league = useLeague();
+  const awayResults = useLast5(league, awayTeam.id, seasonYear);
+  const homeResults = useLast5(league, homeTeam.id, seasonYear);
 
   return (
     <div className={styles.wrapper}>

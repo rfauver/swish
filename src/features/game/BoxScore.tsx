@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { BoxscoreAthlete, BoxscoreTeamPlayers } from "../../api/summary";
 import { fetchGameSummary } from "../../api/summary";
+import { useLeague } from "../../lib/league";
 import styles from "./BoxScore.module.css";
 
 interface Props {
@@ -8,16 +9,20 @@ interface Props {
   isLive: boolean;
 }
 
-// Stat column indices into BoxscoreAthlete.stats (NBA layout):
-// ["MIN","PTS","FG","3PT","FT","REB","AST","TO","STL","BLK","OREB","DREB","PF","+/-"]
-const IDX = {
-  MIN: 0,
-  PTS: 1,
-  FG: 2,
-  REB: 5,
-  AST: 6,
-  PLUS_MINUS: 13,
-} as const;
+// Column layout varies by league, so resolve stat columns by key name from
+// statistics.keys rather than assuming a fixed NBA index. Keys are the ESPN
+// long names (e.g. "points"), not the short labels ("PTS"). Missing keys
+// (indexOf === -1) render as "–" via statAt.
+function columnIndices(keys: string[]) {
+  return {
+    MIN: keys.indexOf("minutes"),
+    PTS: keys.indexOf("points"),
+    FG: keys.indexOf("fieldGoalsMade-fieldGoalsAttempted"),
+    REB: keys.indexOf("rebounds"),
+    AST: keys.indexOf("assists"),
+    PLUS_MINUS: keys.indexOf("plusMinus"),
+  };
+}
 
 function parseFgPct(fg: string | undefined): string {
   if (!fg) return "–";
@@ -38,6 +43,8 @@ function TeamTable({ team }: { team: BoxscoreTeamPlayers }) {
 
   const athletes = stats.athletes.filter((a) => !a.didNotPlay);
   if (athletes.length === 0) return null;
+
+  const col = columnIndices(stats.keys ?? []);
 
   return (
     <div className={styles.teamBlock}>
@@ -76,12 +83,12 @@ function TeamTable({ team }: { team: BoxscoreTeamPlayers }) {
                   </span>
                   {a.starter && <span className={styles.starter}>•</span>}
                 </td>
-                <td>{statAt(a, IDX.MIN)}</td>
-                <td>{statAt(a, IDX.PTS)}</td>
-                <td>{parseFgPct(a.stats?.[IDX.FG])}</td>
-                <td>{statAt(a, IDX.AST)}</td>
-                <td>{statAt(a, IDX.REB)}</td>
-                <td>{statAt(a, IDX.PLUS_MINUS)}</td>
+                <td>{statAt(a, col.MIN)}</td>
+                <td>{statAt(a, col.PTS)}</td>
+                <td>{parseFgPct(a.stats?.[col.FG])}</td>
+                <td>{statAt(a, col.AST)}</td>
+                <td>{statAt(a, col.REB)}</td>
+                <td>{statAt(a, col.PLUS_MINUS)}</td>
               </tr>
             ))}
           </tbody>
@@ -92,9 +99,10 @@ function TeamTable({ team }: { team: BoxscoreTeamPlayers }) {
 }
 
 export default function BoxScore({ eventId, isLive }: Props) {
+  const league = useLeague();
   const { data } = useQuery({
-    queryKey: ["summary", eventId],
-    queryFn: () => fetchGameSummary(eventId),
+    queryKey: ["summary", league, eventId],
+    queryFn: () => fetchGameSummary(league, eventId),
     refetchInterval: isLive ? 30_000 : false,
   });
 

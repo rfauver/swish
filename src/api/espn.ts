@@ -1,4 +1,7 @@
-const BASE_URL = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
+import type { League } from "../lib/league";
+
+const leagueBase = (league: League) =>
+  `https://site.api.espn.com/apis/site/v2/sports/basketball/${league}`;
 
 export class EspnApiError extends Error {
   status: number;
@@ -12,10 +15,10 @@ export class EspnApiError extends Error {
 
 export async function espnFetch<T>(
   path: string,
-  params?: Record<string, string>,
-  options?: { base?: string },
+  params: Record<string, string> | undefined,
+  options: { league: League; base?: string },
 ): Promise<T> {
-  const url = new URL(`${options?.base ?? BASE_URL}${path}`);
+  const url = new URL(`${options.base ?? leagueBase(options.league)}${path}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) =>
       url.searchParams.set(key, value),

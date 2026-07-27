@@ -1,4 +1,5 @@
 import { espnFetch } from "./espn";
+import type { League } from "../lib/league";
 
 export interface StandingsStat {
   name: string;
@@ -30,8 +31,11 @@ export interface StandingsResponse {
   children: StandingsConference[];
 }
 
-export async function fetchStandings(): Promise<StandingsResponse> {
+export async function fetchStandings(
+  league: League,
+): Promise<StandingsResponse> {
   return espnFetch<StandingsResponse>("/standings", undefined, {
-    base: "https://site.api.espn.com/apis/v2/sports/basketball/nba",
+    league,
+    base: `https://site.api.espn.com/apis/v2/sports/basketball/${league}`,
   });
 }

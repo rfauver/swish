@@ -11,6 +11,7 @@ import {
   todayESPN,
 } from "../../lib/dates";
 import { getPeriodLabel } from "../../lib/game";
+import { useLeague } from "../../lib/league";
 import ScoringTimeline from "./ScoringTimeline";
 import BoxScore from "./BoxScore";
 import RecentRecord from "./RecentRecord";
@@ -23,10 +24,11 @@ export default function GamePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const date = searchParams.get("date") ?? todayESPN();
+  const league = useLeague();
 
   const { data, isPending } = useQuery({
-    queryKey: ["scoreboard", date],
-    queryFn: () => fetchScoreboard(date),
+    queryKey: ["scoreboard", league, date],
+    queryFn: () => fetchScoreboard(league, date),
   });
 
   const event = data?.events.find((e) => e.id === eventId);
@@ -36,8 +38,8 @@ export default function GamePage() {
   // while the game is live; ScoringTimeline and BoxScore read from the
   // same cache via their own useQuery calls with the same key.
   const { data: summary } = useQuery({
-    queryKey: ["summary", eventId],
-    queryFn: () => fetchGameSummary(eventId!),
+    queryKey: ["summary", league, eventId],
+    queryFn: () => fetchGameSummary(league, eventId!),
     enabled: !!eventId,
     refetchInterval: (query) => {
       const state =

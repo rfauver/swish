@@ -1,0 +1,38 @@
+.fab {
+  position: fixed;
+  right: var(--space-lg);
+  bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fab:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  display: block;
+  object-fit: contain;
+}

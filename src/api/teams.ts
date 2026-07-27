@@ -1,4 +1,5 @@
 import { espnFetch } from "./espn";
+import type { League } from "../lib/league";
 
 export interface TeamNextEventCompetitor {
   homeAway: "home" | "away";
@@ -28,6 +29,9 @@ export interface TeamResponse {
   };
 }
 
-export async function fetchTeam(teamId: string): Promise<TeamResponse> {
-  return espnFetch<TeamResponse>(`/teams/${teamId}`);
+export async function fetchTeam(
+  league: League,
+  teamId: string,
+): Promise<TeamResponse> {
+  return espnFetch<TeamResponse>(`/teams/${teamId}`, undefined, { league });
 }

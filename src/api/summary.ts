@@ -1,5 +1,6 @@
 import { espnFetch } from "./espn";
 import type { EspnStatus, GameState } from "./scores";
+import type { League } from "../lib/league";
 
 export type { GameState };
 
@@ -86,7 +87,8 @@ export interface SummaryResponse {
 }
 
 export async function fetchGameSummary(
+  league: League,
   eventId: string,
 ): Promise<SummaryResponse> {
-  return espnFetch<SummaryResponse>("/summary", { event: eventId });
+  return espnFetch<SummaryResponse>("/summary", { event: eventId }, { league });
 }

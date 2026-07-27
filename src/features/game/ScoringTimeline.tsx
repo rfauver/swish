@@ -12,6 +12,7 @@ import {
 import type { EspnTeam } from "../../api/scores";
 import type { SummaryPlay } from "../../api/summary";
 import { fetchGameSummary } from "../../api/summary";
+import { useLeague } from "../../lib/league";
 import styles from "./ScoringTimeline.module.css";
 
 interface Props {
@@ -89,9 +90,10 @@ export default function ScoringTimeline({
   homeTeam,
   isLive,
 }: Props) {
+  const league = useLeague();
   const { data, isPending } = useQuery({
-    queryKey: ["summary", eventId],
-    queryFn: () => fetchGameSummary(eventId),
+    queryKey: ["summary", league, eventId],
+    queryFn: () => fetchGameSummary(league, eventId),
     refetchInterval: isLive ? 30_000 : false,
   });
 
