@@ -73,17 +73,12 @@ export interface SummaryHeader {
   };
 }
 
-export interface SummaryStandings {
-  isSameConference?: boolean;
-}
-
 export interface SummaryResponse {
   plays: SummaryPlay[];
   boxscore?: {
     players?: BoxscoreTeamPlayers[];
   };
   header?: SummaryHeader;
-  standings?: SummaryStandings;
 }
 
 export async function fetchGameSummary(

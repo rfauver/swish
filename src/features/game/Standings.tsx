@@ -8,7 +8,6 @@ import styles from "./Standings.module.css";
 interface Props {
   awayTeamId: string;
   homeTeamId: string;
-  isSameConference?: boolean;
 }
 
 function getStat(entry: StandingsEntry, type: string): string {
@@ -24,11 +23,7 @@ function findConference(
   );
 }
 
-export default function Standings({
-  awayTeamId,
-  homeTeamId,
-  isSameConference,
-}: Props) {
+export default function Standings({ awayTeamId, homeTeamId }: Props) {
   const league = useLeague();
   const { data, isPending } = useQuery({
     queryKey: ["standings", league],
@@ -40,14 +35,12 @@ export default function Standings({
   const awayConf = findConference(conferences, awayTeamId);
   const homeConf = findConference(conferences, homeTeamId);
 
-  const conferencesToShow: StandingsConference[] = isSameConference
-    ? awayConf
-      ? [awayConf]
-      : []
-    : [awayConf, homeConf].filter(
-        (c, i, arr): c is StandingsConference =>
-          !!c && arr.findIndex((x) => x?.id === c.id) === i,
-      );
+  // ESPN's summary `standings.isSameConference` is unreliable (WNBA reports
+  // true for cross-conference games), so derive it from the standings itself.
+  const conferencesToShow: StandingsConference[] = [awayConf, homeConf].filter(
+    (c, i, arr): c is StandingsConference =>
+      !!c && arr.findIndex((x) => x?.id === c.id) === i,
+  );
 
   const teamIds = Array.from(
     new Set(

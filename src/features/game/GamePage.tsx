@@ -314,7 +314,6 @@ export default function GamePage() {
             <Standings
               awayTeamId={away.team.id}
               homeTeamId={home.team.id}
-              isSameConference={summary?.standings?.isSameConference}
             />
           </div>
         )}
