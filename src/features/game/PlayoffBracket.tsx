@@ -18,7 +18,6 @@ interface Props {
   seasonYear: number;
 }
 
-const ROUNDS: RoundId[] = [1, 2, 3, 4];
 const COL_WIDTH = 160;
 
 export default function PlayoffBracket({
@@ -30,7 +29,7 @@ export default function PlayoffBracket({
   const { data: bracket, isPending } = useQuery({
     queryKey: ["playoffBracket", league, seasonYear],
     queryFn: () => fetchPlayoffScoreboard(league, seasonYear),
-    select: (data) => buildBracket(data.events),
+    select: (data) => buildBracket(data.events, league),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -51,26 +50,31 @@ export default function PlayoffBracket({
     return <div className={styles.loading}>Loading bracket…</div>;
   }
 
-  const visibleRounds = ROUNDS.filter((r) => r >= currentRound);
+  const rounds = bracket.roundIds;
+  const visibleRounds = rounds.filter((r) => r >= currentRound);
 
   // Split series by conference per round
   const eastByRound = new Map<RoundId, BracketSeries[]>();
   const westByRound = new Map<RoundId, BracketSeries[]>();
   let finalsSeries: BracketSeries | null = null;
 
-  for (const round of ROUNDS) {
+  for (const round of rounds) {
     const all = bracket.rounds.get(round) ?? [];
-    eastByRound.set(round, all.filter((s) => s.conference === "East"));
-    westByRound.set(round, all.filter((s) => s.conference === "West"));
+    eastByRound.set(
+      round,
+      all.filter((s) => s.conference === "East"),
+    );
+    westByRound.set(
+      round,
+      all.filter((s) => s.conference === "West"),
+    );
     const f = all.find((s) => s.conference === "Finals");
     if (f) finalsSeries = f;
   }
 
   // Base rows per conference in the active round
   const baseRowsPerConf =
-    currentRound <= 3
-      ? (eastByRound.get(currentRound)?.length ?? 1)
-      : 1;
+    currentRound <= 3 ? (eastByRound.get(currentRound)?.length ?? 1) : 1;
 
   // Total grid rows: East rows + divider row + West rows
   // East occupies rows 1..baseRowsPerConf
@@ -81,8 +85,10 @@ export default function PlayoffBracket({
   const totalCols = confRounds.length + (showFinals ? 1 : 0);
 
   function isHighlighted(s: BracketSeries) {
-    return s.round === defaultRound &&
-      s.teams.some((t) => t && highlightIds.has(t.id));
+    return (
+      s.round === defaultRound &&
+      s.teams.some((t) => t && highlightIds.has(t.id))
+    );
   }
 
   // Place series cells into the unified grid
@@ -140,7 +146,10 @@ export default function PlayoffBracket({
           gridRow: `1 / span ${totalGridRows}`,
         }}
       >
-        <SeriesCard series={finalsSeries} isHighlighted={isHighlighted(finalsSeries)} />
+        <SeriesCard
+          series={finalsSeries}
+          isHighlighted={isHighlighted(finalsSeries)}
+        />
       </div>,
     );
   }
@@ -148,13 +157,13 @@ export default function PlayoffBracket({
   return (
     <div className={styles.wrapper}>
       <div className={styles.tabs}>
-        {ROUNDS.map((r) => (
+        {rounds.map((r) => (
           <button
             key={r}
             className={`${styles.tab} ${r === currentRound ? styles.tabActive : ""}`}
             onClick={() => setActiveRound(r)}
           >
-            {roundLabel(r)}
+            {roundLabel(r, league)}
           </button>
         ))}
       </div>
